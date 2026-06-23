@@ -23,11 +23,13 @@ export default async function RestaurantPage({ params }) {
         ← 식당 목록
       </Link>
 
-      <div className="flex items-center gap-3 mt-3 mb-5">
-        <span className="text-4xl">{restaurant.image_url}</span>
+      <div className="bg-gradient-to-br from-orange-400 to-amber-400 rounded-2xl p-5 mt-3 mb-5 text-white flex items-center gap-4 shadow-sm">
+        <div className="w-16 h-16 flex items-center justify-center text-4xl bg-white/25 rounded-2xl">
+          {restaurant.image_url}
+        </div>
         <div>
           <h1 className="text-xl font-bold">{restaurant.name}</h1>
-          <p className="text-sm text-gray-500">{restaurant.category}</p>
+          <p className="text-sm opacity-90">{restaurant.category}</p>
         </div>
       </div>
 
@@ -36,7 +38,7 @@ export default async function RestaurantPage({ params }) {
           <li key={menu.id} className="flex items-center justify-between px-4 py-3">
             <div>
               <div className="font-medium">{menu.name}</div>
-              <div className="text-sm text-gray-500">
+              <div className="text-sm font-semibold text-gray-700">
                 {menu.price.toLocaleString()}원
               </div>
             </div>

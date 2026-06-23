@@ -2,7 +2,6 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 
-// 카테고리 필터 칩 목록
 const CATEGORIES = [
   { name: "전체", emoji: "🍽️" },
   { name: "치킨", emoji: "🍗" },
@@ -11,14 +10,20 @@ const CATEGORIES = [
   { name: "분식", emoji: "🍢" },
 ];
 
+// 카테고리별 뱃지 색상
+const CATEGORY_COLOR = {
+  치킨: "bg-amber-100 text-amber-700",
+  피자: "bg-red-100 text-red-700",
+  버거: "bg-yellow-100 text-yellow-700",
+  분식: "bg-rose-100 text-rose-700",
+};
+
 export default async function HomePage({ searchParams }) {
   const user = await getCurrentUser();
 
-  // Next.js 16: searchParams는 비동기
   const { category } = await searchParams;
   const active = category || "전체";
 
-  // '전체'면 모든 식당, 아니면 해당 카테고리만 조회
   const restaurants =
     active === "전체"
       ? await sql`
@@ -37,8 +42,16 @@ export default async function HomePage({ searchParams }) {
 
   return (
     <div>
-      {!user && (
-        <div className="bg-orange-50 border border-orange-200 text-orange-800 text-sm rounded-lg px-4 py-3 mb-5">
+      {/* 인사 배너 */}
+      {user ? (
+        <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl px-5 py-4 mb-5 shadow-sm">
+          <p className="text-sm opacity-90">안녕하세요 👋</p>
+          <p className="text-lg font-bold">
+            {user.email.split("@")[0]}님, 오늘은 뭐 드실래요?
+          </p>
+        </div>
+      ) : (
+        <div className="bg-orange-50 border border-orange-200 text-orange-800 text-sm rounded-xl px-4 py-3 mb-5">
           메뉴를 구경한 뒤 주문하려면{" "}
           <Link href="/login" className="font-semibold underline">
             로그인
@@ -75,12 +88,23 @@ export default async function HomePage({ searchParams }) {
           <Link
             key={r.id}
             href={`/restaurants/${r.id}`}
-            className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+            className="group bg-white border border-gray-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all"
           >
-            <div className="text-4xl mb-2">{r.image_url}</div>
+            <div className="w-14 h-14 flex items-center justify-center text-3xl bg-orange-50 rounded-2xl mb-3 group-hover:scale-105 transition-transform">
+              {r.image_url}
+            </div>
             <div className="font-semibold">{r.name}</div>
-            <div className="text-sm text-gray-500">
-              {r.category} · 메뉴 {Number(r.menu_count)}개
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full ${
+                  CATEGORY_COLOR[r.category] || "bg-gray-100 text-gray-600"
+                }`}
+              >
+                {r.category}
+              </span>
+              <span className="text-xs text-gray-400">
+                메뉴 {Number(r.menu_count)}개
+              </span>
             </div>
           </Link>
         ))}
