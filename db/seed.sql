@@ -4,8 +4,14 @@
 -- (스키마 생성 후 실행하면 식당/메뉴가 채워진다. users는 건드리지 않음)
 -- ============================================================
 
--- 식당/메뉴/주문만 비우고 다시 넣는다. (회원 계정은 유지)
-TRUNCATE TABLE order_items, orders, menus, restaurants RESTART IDENTITY CASCADE;
+-- 식당/메뉴/주문/쿠폰만 비우고 다시 넣는다. (회원 계정은 유지)
+TRUNCATE TABLE order_items, orders, menus, restaurants, coupons RESTART IDENTITY CASCADE;
+
+-- 시즌성 쿠폰 (가산 기능)
+INSERT INTO coupons (code, title, discount_type, discount_value, min_order_price, valid_until) VALUES
+  ('WELCOME3000', '첫 주문 3,000원 할인',  'fixed',   3000, 10000, NULL),
+  ('SUMMER10',    '여름맞이 10% 할인',     'percent', 10,   15000, '2026-08-31'),
+  ('CHICKEN5000', '치킨 데이 5,000원 할인', 'fixed',   5000, 20000, '2026-07-31');
 
 -- 식당 4곳 (카테고리 다양)
 INSERT INTO restaurants (name, category, image_url) VALUES

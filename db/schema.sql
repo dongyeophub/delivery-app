@@ -51,6 +51,22 @@ CREATE TABLE IF NOT EXISTS order_items (
   quantity   INTEGER NOT NULL                -- 수량
 );
 
+-- 6) coupons: 시즌성 할인 쿠폰 (가산 기능)
+CREATE TABLE IF NOT EXISTS coupons (
+  id              SERIAL PRIMARY KEY,
+  code            TEXT NOT NULL UNIQUE,           -- 사용자가 적용하는 쿠폰 코드
+  title           TEXT NOT NULL,                  -- 화면에 보일 설명
+  discount_type   TEXT NOT NULL,                  -- 'percent'(정률) | 'fixed'(정액)
+  discount_value  INTEGER NOT NULL,               -- percent면 %, fixed면 원
+  min_order_price INTEGER NOT NULL DEFAULT 0,     -- 최소 주문금액
+  valid_until     DATE,                           -- 시즌 만료일 (NULL이면 상시)
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- orders에 쿠폰 적용 결과를 "스냅샷"으로 저장 (쿠폰이 나중에 바뀌어도 과거 주문은 보존)
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS coupon_code TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_amount INTEGER NOT NULL DEFAULT 0;
+
 -- 조회 속도를 위한 인덱스 (외래키로 자주 조회하는 컬럼)
 CREATE INDEX IF NOT EXISTS idx_menus_restaurant ON menus(restaurant_id);
 CREATE INDEX IF NOT EXISTS idx_orders_user ON orders(user_id);
