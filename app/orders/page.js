@@ -10,7 +10,7 @@ export default async function OrdersPage() {
 
   // 내 주문들(머리)을 최신순으로
   const orders = await sql`
-    SELECT id, total_price, status, created_at
+    SELECT id, total_price, coupon_code, discount_amount, status, created_at
     FROM orders
     WHERE user_id = ${user.id}
     ORDER BY created_at DESC
@@ -77,11 +77,25 @@ export default async function OrdersPage() {
               ))}
             </ul>
 
-            <div className="flex justify-between border-t border-gray-100 pt-2 font-semibold">
-              <span>합계</span>
-              <span className="text-orange-600">
-                {order.total_price.toLocaleString()}원
-              </span>
+            <div className="border-t border-gray-100 pt-2">
+              {order.discount_amount > 0 && (
+                <>
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>메뉴 합계</span>
+                    <span>{order.total_price.toLocaleString()}원</span>
+                  </div>
+                  <div className="flex justify-between text-sm text-red-500">
+                    <span>쿠폰 할인 ({order.coupon_code})</span>
+                    <span>-{order.discount_amount.toLocaleString()}원</span>
+                  </div>
+                </>
+              )}
+              <div className="flex justify-between font-semibold">
+                <span>결제금액</span>
+                <span className="text-orange-600">
+                  {(order.total_price - order.discount_amount).toLocaleString()}원
+                </span>
+              </div>
             </div>
           </div>
         ))}

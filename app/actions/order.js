@@ -5,8 +5,9 @@
 
 import { sql } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import { calcDiscount } from "@/lib/coupon";
 
-export async function placeOrder(cartItems) {
+export async function placeOrder(cartItems, couponCode) {
   const user = await getCurrentUser();
   if (!user) return { error: "로그인이 필요합니다.", needLogin: true };
 
@@ -33,10 +34,28 @@ export async function placeOrder(cartItems) {
     return { error: "주문할 수 있는 메뉴가 없습니다." };
   }
 
-  // 1) 주문 머리를 orders에 저장하고 새 주문 id를 받는다
+  // 쿠폰 검증: 클라이언트가 보낸 코드를 DB에서 다시 확인(유효기간·최소금액)하고 할인액을 서버에서 계산
+  let discountAmount = 0;
+  let appliedCode = null;
+  if (couponCode) {
+    const couponRows = await sql`
+      SELECT discount_type, discount_value, min_order_price
+      FROM coupons
+      WHERE code = ${couponCode}
+        AND (valid_until IS NULL OR valid_until >= CURRENT_DATE)
+    `;
+    const coupon = couponRows[0];
+    const d = calcDiscount(coupon, totalPrice);
+    if (d > 0) {
+      discountAmount = d;
+      appliedCode = couponCode;
+    }
+  }
+
+  // 1) 주문 머리를 orders에 저장하고 새 주문 id를 받는다 (할인 정보 스냅샷 포함)
   const orderRows = await sql`
-    INSERT INTO orders (user_id, total_price)
-    VALUES (${user.id}, ${totalPrice})
+    INSERT INTO orders (user_id, total_price, coupon_code, discount_amount)
+    VALUES (${user.id}, ${totalPrice}, ${appliedCode}, ${discountAmount})
     RETURNING id
   `;
   const orderId = orderRows[0].id;

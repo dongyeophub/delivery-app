@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/components/CartContext";
 import { placeOrder } from "@/app/actions/order";
 
-export default function OrderButton() {
+export default function OrderButton({ couponCode }) {
   const { items, clearCart } = useCart();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -16,7 +16,7 @@ export default function OrderButton() {
     setLoading(true);
     setError(null);
 
-    const result = await placeOrder(items);
+    const result = await placeOrder(items, couponCode);
 
     if (result?.needLogin) {
       router.push("/login");
