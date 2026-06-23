@@ -13,12 +13,16 @@ INSERT INTO coupons (code, title, discount_type, discount_value, min_order_price
   ('SUMMER10',    '여름맞이 10% 할인',     'percent', 10,   15000, '2026-08-31'),
   ('CHICKEN5000', '치킨 데이 5,000원 할인', 'fixed',   5000, 20000, '2026-07-31');
 
--- 식당 4곳 (카테고리 다양)
+-- 식당 8곳 (카테고리별 2곳씩)
 INSERT INTO restaurants (name, category, image_url) VALUES
   ('교촌치킨',   '치킨', '🍗'),
   ('도미노피자', '피자', '🍕'),
   ('맘스터치',   '버거', '🍔'),
-  ('김밥천국',   '분식', '🍢');
+  ('김밥천국',   '분식', '🍢'),
+  ('BBQ치킨',   '치킨', '🍗'),
+  ('피자헛',     '피자', '🍕'),
+  ('롯데리아',   '버거', '🍔'),
+  ('김밥나라',   '분식', '🍢');
 
 -- 교촌치킨(1)
 INSERT INTO menus (restaurant_id, name, price) VALUES
@@ -55,3 +59,39 @@ INSERT INTO menus (restaurant_id, name, price) VALUES
   (4, '치즈돈까스',   8000),
   (4, '떡볶이',       4500),
   (4, '제육덮밥',     7500);
+
+-- BBQ치킨(5)
+INSERT INTO menus (restaurant_id, name, price) VALUES
+  (5, '황금올리브치킨',       23000),
+  (5, '황금올리브 블랙페퍼',  24000),
+  (5, '핫황금올리브',         23000),
+  (5, '자메이카 통다리구이',  24000),
+  (5, '케이준 감자',           4000),
+  (5, '콜라 1.25L',            2000);
+
+-- 피자헛(6) — 라지(L) 기준
+INSERT INTO menus (restaurant_id, name, price) VALUES
+  (6, '슈퍼슈프림(L)',        33900),
+  (6, '프리미엄 페퍼로니(L)', 35900),
+  (6, 'LA BBQ 불고기(L)',     29900),
+  (6, '포테이토(L)',          31900),
+  (6, '갈릭 버터 쉬림프(L)',  33900),
+  (6, '갈릭 브레드',           5900);
+
+-- 롯데리아(7) — 단품 기준
+INSERT INTO menus (restaurant_id, name, price) VALUES
+  (7, '리아 불고기버거',   5000),
+  (7, '리아 새우버거',     5000),
+  (7, '한우불고기버거',    9700),
+  (7, '더블 불고기버거',   6500),
+  (7, '치킨버거',          4500),
+  (7, '양념감자',          2500);
+
+-- 김밥나라(8)
+INSERT INTO menus (restaurant_id, name, price) VALUES
+  (8, '김밥',           3500),
+  (8, '치즈김밥',       4500),
+  (8, '라면',           4000),
+  (8, '떡볶이',         5000),
+  (8, '돈까스',         8000),
+  (8, '김치볶음밥',     7500);
