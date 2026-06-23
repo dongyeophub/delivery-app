@@ -2,6 +2,9 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 
+// 항상 최신 데이터로 렌더 (DB 변경/로그인 상태가 즉시 반영되도록 캐싱 끔)
+export const dynamic = "force-dynamic";
+
 const CATEGORIES = [
   { name: "전체", emoji: "🍽️" },
   { name: "치킨", emoji: "🍗" },

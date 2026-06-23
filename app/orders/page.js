@@ -4,6 +4,9 @@ import { sql } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 import OrderStatus from "@/components/OrderStatus";
 
+// 항상 최신 주문 내역으로 렌더 (캐싱 끔)
+export const dynamic = "force-dynamic";
+
 // 내 주문 내역. 로그인한 사용자의 orders + order_items를 DB에서 불러온다.
 export default async function OrdersPage() {
   const user = await getCurrentUser();

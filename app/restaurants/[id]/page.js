@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { sql } from "@/lib/db";
 import AddToCartButton from "@/components/AddToCartButton";
 
+// 항상 최신 메뉴로 렌더 (캐싱 끔)
+export const dynamic = "force-dynamic";
+
 // 식당 상세 페이지. URL의 [id]는 params로 들어오며 Next.js 16에서는 비동기다.
 export default async function RestaurantPage({ params }) {
   const { id } = await params;
