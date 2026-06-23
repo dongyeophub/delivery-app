@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { sql } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
+import OrderStatus from "@/components/OrderStatus";
 
 // 내 주문 내역. 로그인한 사용자의 orders + order_items를 DB에서 불러온다.
 export default async function OrdersPage() {
@@ -61,9 +62,7 @@ export default async function OrdersPage() {
                 주문 #{order.id} ·{" "}
                 {new Date(order.created_at).toLocaleString("ko-KR")}
               </span>
-              <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full">
-                {order.status}
-              </span>
+              <OrderStatus createdAt={order.created_at} />
             </div>
 
             <ul className="text-sm text-gray-700 mb-2">
