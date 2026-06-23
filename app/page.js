@@ -2,21 +2,41 @@ import Link from "next/link";
 import { sql } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 
-export default async function HomePage() {
+// 카테고리 필터 칩 목록
+const CATEGORIES = [
+  { name: "전체", emoji: "🍽️" },
+  { name: "치킨", emoji: "🍗" },
+  { name: "피자", emoji: "🍕" },
+  { name: "버거", emoji: "🍔" },
+  { name: "분식", emoji: "🍢" },
+];
+
+export default async function HomePage({ searchParams }) {
   const user = await getCurrentUser();
 
-  // 식당 목록 + 각 식당의 메뉴 개수를 DB에서 조회
-  const restaurants = await sql`
-    SELECT r.id, r.name, r.category, r.image_url, COUNT(m.id) AS menu_count
-    FROM restaurants r
-    LEFT JOIN menus m ON m.restaurant_id = r.id
-    GROUP BY r.id
-    ORDER BY r.id
-  `;
+  // Next.js 16: searchParams는 비동기
+  const { category } = await searchParams;
+  const active = category || "전체";
+
+  // '전체'면 모든 식당, 아니면 해당 카테고리만 조회
+  const restaurants =
+    active === "전체"
+      ? await sql`
+          SELECT r.id, r.name, r.category, r.image_url, COUNT(m.id) AS menu_count
+          FROM restaurants r
+          LEFT JOIN menus m ON m.restaurant_id = r.id
+          GROUP BY r.id ORDER BY r.id
+        `
+      : await sql`
+          SELECT r.id, r.name, r.category, r.image_url, COUNT(m.id) AS menu_count
+          FROM restaurants r
+          LEFT JOIN menus m ON m.restaurant_id = r.id
+          WHERE r.category = ${active}
+          GROUP BY r.id ORDER BY r.id
+        `;
 
   return (
     <div>
-      {/* 로그인 안 한 경우 안내 배너 */}
       {!user && (
         <div className="bg-orange-50 border border-orange-200 text-orange-800 text-sm rounded-lg px-4 py-3 mb-5">
           메뉴를 구경한 뒤 주문하려면{" "}
@@ -27,7 +47,28 @@ export default async function HomePage() {
         </div>
       )}
 
-      <h1 className="text-xl font-bold mb-4">식당</h1>
+      <h1 className="text-xl font-bold mb-3">식당</h1>
+
+      {/* 카테고리 필터 칩 */}
+      <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
+        {CATEGORIES.map((cat) => {
+          const isActive = active === cat.name;
+          const href = cat.name === "전체" ? "/" : `/?category=${cat.name}`;
+          return (
+            <Link
+              key={cat.name}
+              href={href}
+              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                isActive
+                  ? "bg-orange-500 text-white border-orange-500"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-orange-300"
+              }`}
+            >
+              {cat.emoji} {cat.name}
+            </Link>
+          );
+        })}
+      </div>
 
       <div className="grid grid-cols-2 gap-3">
         {restaurants.map((r) => (
