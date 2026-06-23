@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { logout } from "@/app/actions/auth";
+import CartButton from "@/components/CartButton";
 
 export default async function Header() {
   const user = await getCurrentUser();
@@ -15,6 +16,7 @@ export default async function Header() {
         </Link>
 
         <nav className="flex items-center gap-3 text-sm">
+          <CartButton />
           {user ? (
             <>
               <Link href="/orders" className="text-gray-700 hover:text-orange-600">

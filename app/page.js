@@ -1,37 +1,49 @@
 import Link from "next/link";
+import { sql } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function HomePage() {
   const user = await getCurrentUser();
 
-  if (!user) {
-    return (
-      <div className="text-center mt-16">
-        <p className="text-5xl mb-4">🍔</p>
-        <h1 className="text-2xl font-bold mb-2">한입배달에 오신 걸 환영합니다</h1>
-        <p className="text-gray-500 mb-6">로그인하고 맛있는 메뉴를 주문해보세요.</p>
-        <div className="flex justify-center gap-3">
-          <Link
-            href="/login"
-            className="border border-orange-500 text-orange-600 px-4 py-2 rounded-md hover:bg-orange-50"
-          >
-            로그인
-          </Link>
-          <Link
-            href="/signup"
-            className="bg-orange-500 text-white px-4 py-2 rounded-md hover:bg-orange-600"
-          >
-            회원가입
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  // 식당 목록 + 각 식당의 메뉴 개수를 DB에서 조회
+  const restaurants = await sql`
+    SELECT r.id, r.name, r.category, r.image_url, COUNT(m.id) AS menu_count
+    FROM restaurants r
+    LEFT JOIN menus m ON m.restaurant_id = r.id
+    GROUP BY r.id
+    ORDER BY r.id
+  `;
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-1">환영합니다, {user.email}님 👋</h1>
-      <p className="text-gray-500">식당 목록은 다음 단계에서 추가됩니다.</p>
+      {/* 로그인 안 한 경우 안내 배너 */}
+      {!user && (
+        <div className="bg-orange-50 border border-orange-200 text-orange-800 text-sm rounded-lg px-4 py-3 mb-5">
+          메뉴를 구경한 뒤 주문하려면{" "}
+          <Link href="/login" className="font-semibold underline">
+            로그인
+          </Link>
+          이 필요해요.
+        </div>
+      )}
+
+      <h1 className="text-xl font-bold mb-4">식당</h1>
+
+      <div className="grid grid-cols-2 gap-3">
+        {restaurants.map((r) => (
+          <Link
+            key={r.id}
+            href={`/restaurants/${r.id}`}
+            className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+          >
+            <div className="text-4xl mb-2">{r.image_url}</div>
+            <div className="font-semibold">{r.name}</div>
+            <div className="text-sm text-gray-500">
+              {r.category} · 메뉴 {Number(r.menu_count)}개
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
